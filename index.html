@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻牌遊戲</title>
+    <style>
+        #game {
+            width: 300px;
+        }
+
+        .card {
+            width: 50px;
+            height: 90px;
+            position: relative;
+            /* 設定子元素在 3D 空間內 */
+            transform-style: preserve-3d;
+            transition: transform .5s;
+            float: left;
+            margin: 10px;
+        }
+
+        .card-back {
+            width: 100%;
+            height: 100%;
+            background-image: url(./cards/Red_back.jpg);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            position: absolute;
+            /* 翻過來後隱藏背面 ，為mac ios系統而加，正常windows不影響*/
+            backface-visibility: hidden;
+            -web-backface-visibility: hidden;
+        }
+
+        .card-front {
+            width: 100%;
+            height: 100%;
+            background-image: url(./cards/1H.jpg);
+            background-position: center;
+            background-repeat: no-repeat;
+            /* 等比例縮放 */
+            background-size: contain;
+            position: absolute;
+            transform: rotateY(180deg);
+        }
+
+        .card-open {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game">
+        <!-- 移至js -->
+        <!-- <div class="card">
+            <div class="card-front"></div>
+            <div class="card-back"></div>
+        </div> -->
+    </div>
+
+    <script src="./jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        // 因為i是0，所以是i < 16，不是<=
+        // 產生16張卡片
+        for (let i = 0; i < 16; i++) {
+            $('#game').append(`
+        <div class="card">
+          <div class="card-back"></div>
+          <div class="card-front"></div>
+        </div>
+      `)
+        }
+
+        // 決定花色並打散
+        for (let i = 0; i < 16; i++) {
+            //決定數字  
+            //迴圈從0開始，卡片從開始所以要加 1
+            let number = i % (16 / 2) + 1
+            $('.card').eq(i).find('.card-front').css('background-image', `url(./cards/${number}H.jpg)`)
+            $('.card').eq(i).attr('data-card', number)
+
+
+            let target = Math.floor(Math.random() * 16)
+            $('.card').eq(target).insertAfter($('.card').eq(i))
+        }
+
+        $('#game').on('click', '.card', function () {
+            //最多只能翻兩張牌
+            if ($('.card-open').length < 2 && !$(this).hasClass('card-open')) {
+                $(this).addClass('card-open')
+            }
+
+            // 翻兩張牌後的動作，所以不能用elseif
+            //如果翻開兩張了
+            if ($('.card-open').length === 2) {
+                //如果翻的二張數字一樣
+                if ($('.card-open').eq(0).attr('data-card') === $('.card-open').eq(1).attr('data-card')) {
+                    //淡出，並用card-clear標記已解決
+                    $('.card-open').slideUp(3000, 0).addClass('card-clear')
+                }
+                // 時間到不管一不一樣都翻回來
+                setTimeout(() => {
+                    $('.card-open').removeClass('card-open')
+                }, 1000);
+            }
+
+            //如果全部都翻完16張
+            if ($('.card-clear').length === 16) {
+                Swal.fire({
+                    title: '恭喜過關'
+                })
+            }
+        })
+
+    </script>
+</body>
+
+</html>
