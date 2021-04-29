@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Metal Mania', cursive;
+        }
+
+        body {
+            background: #192D2E;
+        }
+
+        .leftbackground {
+
+            width: 1200px;
+            height: 969px;
+            background: #C97F04;
+            transform: skew(-35deg);
+            transform-origin: top;
+            /* content: ""; */
+            position: fixed;
+            /* z-index: -99; */
+            /* left: 0; */
+        }
+
+        .title {
+            color: rgba(0, 0, 0, );
+            text-shadow: 10px 10px 5px rgb(227, 223, 223);
+            margin-left: 750px;
+            margin-top: 25px;
+            position: absolute;
+            font-size: 100px;
+            z-index: 30;
+            font-weight: bold;
+
+        }
+
+        .title2 {
+            color: rgb(190, 65, 65);
+            text-shadow: 10px 10px 5px rgba(22, 3, 3, 0.811);
+            margin-left: 25px;
+            margin-top: 25px;
+            position: absolute;
+            font-size: 100px;
+            z-index: 30;
+
+        }
+
+        .titlebackground {
+            background: #4a99aceb;
+            width: 650px;
+            height: 50px;
+            position: absolute;
+            margin-left: 730px;
+            margin-top: 80px;
+            z-index: 29;
+        }
+
+
+        .container {
+            background: #f2d8b3af;
+            width: 1000px;
+            height: 800px;
+            margin-left: 25%;
+            margin-top: 100px;
+            position: absolute;
+            box-shadow: 30px 30px 30px #000000ad;
+            filter: opacity(.9);
+        }
+
+        .center {
+            /* background: wheat; */
+            width: 800px;
+            height: 700px;
+            margin-top: 50px;
+            margin-left: 100px;
+        }
+
+        #game {
+            width: 900px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            /* 設定子元素在 3D 空間內 */
+            transform-style: preserve-3d;
+            transition: transform .5s;
+            float: left;
+            /* margin: 50px; */
+            margin-top: 10px;
+            margin-left: 20px;
+            margin-right: 30px;
+            margin-bottom: 10px;
+            padding: 20px;
+            /* contain: strict; */
+        }
+
+        .card-back {
+            width: 100%;
+            height: 100%;
+            background-image: url('./newcards/faceback3.jpg');
+            border-radius: 5px;
+            background-position: center;
+            /* background-repeat: no-repeat; */
+            /* background-size: contain; */
+            position: absolute;
+            /* 翻過來後隱藏背面 ，為mac ios系統而加，正常windows不影響*/
+            backface-visibility: hidden;
+            -web-backface-visibility: hidden;
+        }
+
+        .card-front {
+            width: 100%;
+            height: 100%;
+            background-image: url(./newcards/1A.jpg);
+            border-radius: 5px;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* 等比例縮放 */
+            background-size: contain;
+            position: absolute;
+            transform: rotateY(180deg);
+        }
+
+        .card-open {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+
+
+<body>
+    <div class="leftbackground">
+    </div>
+    <div class="title">BLACK <span class="title2">HUMOR</span></div>
+    <div class="titlebackground"></div>
+    <div class="container">
+        <div class="center">
+            <div id="game"></div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- js -->
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        // 因為i是0，所以是i < 16，不是<=
+        // 產生16張卡片
+        for (let i = 0; i < 16; i++) {
+            $('#game').append(`
+        <div class="card">
+          <div class="card-back"></div>
+          <div class="card-front"></div>
+        </div>
+      `)
+        }
+
+        // 決定花色並打散
+        for (let i = 0; i < 8; i++) {
+            //決定數字  
+            //迴圈從0開始，卡片從開始所以要加 1
+            let number = i +1 // % (16 / 2) + 1
+            $('.card').eq(i).find('.card-front').css('background-image', `url(./newcards/${number}A.jpg)`)
+            $('.card').eq(i).attr('data-card', number)
+
+            let target = Math.floor(Math.random() * 16)
+            $('.card').eq(target).insertAfter($('.card').eq(i))
+        }
+
+        for(let j=8;j<16;j++){
+                let number2 = j % (16 / 2) + 1
+                $('.card').eq(j).find('.card-front').css('background-image', `url(./newcards2/${number2}A.jpg)`)
+            $('.card').eq(j).attr('data-card', number2)
+
+            let target2 = Math.floor(Math.random() * 16)
+            $('.card').eq(target2).insertAfter($('.card').eq(j))
+        }
+
+
+        $('#game').on('click', '.card', function () {
+            //最多只能翻兩張牌
+            if ($('.card-open').length < 2 && !$(this).hasClass('card-open')) {
+                $(this).addClass('card-open')
+            }
+
+            // 翻兩張牌後的動作，所以不能用elseif
+            //如果翻開兩張了
+            if ($('.card-open').length === 2) {
+                //如果翻的二張數字一樣
+                if ($('.card-open').eq(0).attr('data-card') === $('.card-open').eq(1).attr('data-card')) {
+                    //淡出，並用card-clear標記已解決
+                    $('.card-open').fadeTo(3000, 0.5).addClass('card-clear')
+                }
+                // 時間到不管一不一樣都翻回來
+                setTimeout(() => {
+                    $('.card-open').removeClass('card-open')
+                }, 1000);
+            }
+
+            //如果全部都翻完16張
+            if ($('.card-clear').length === 16) {
+                Swal.fire({
+                    title: '太神辣～～～～'
+                })
+            }
+        })
+
+    </script>
+</body>
+
+</html>
